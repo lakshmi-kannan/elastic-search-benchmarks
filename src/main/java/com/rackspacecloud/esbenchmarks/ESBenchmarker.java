@@ -1,5 +1,6 @@
 package com.rackspacecloud.esbenchmarks;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.spi.LoggerFactory;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -58,8 +59,10 @@ public class ESBenchmarker {
             for (int count = 0; count < ITERATIONS; count++) {
                 try {
                     long start = System.currentTimeMillis();
-                    IndexResponse response = client.prepareIndex("ele-bf", "metrics")
-                            .setSource(generateFakeData())
+                    final String accountId = "ac" + UUID.randomUUID();
+                    final XContentBuilder content = generateFakeData(accountId);
+                    IndexResponse response = client.prepareIndex("ele-bf", "metricsIndex-" + getIndex(accountId))
+                            .setSource(content)
                             .execute()
                             .actionGet();
                     long stop = System.currentTimeMillis();
@@ -74,14 +77,18 @@ public class ESBenchmarker {
             latch.countDown();
         }
 
-        private XContentBuilder generateFakeData() throws IOException {
+        private XContentBuilder generateFakeData(String accountId) throws IOException {
             XContentBuilder builder = jsonBuilder()
                     .startObject()
-                        .field("accountId", "ac" + UUID.randomUUID())
+                        .field("accountId", accountId)
                         .field("metricName", "ord1-" + UUID.randomUUID())
                     .endObject();
 
             return builder;
+        }
+
+        private String getIndex(String accountId) {
+            return String.valueOf(Long.parseLong(DigestUtils.md5Hex(accountId).substring(30), 16) % 128);
         }
     }
 }
