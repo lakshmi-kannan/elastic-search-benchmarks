@@ -19,7 +19,7 @@ import java.util.concurrent.*;
 
 public class ESBenchmarker {
     private static final Integer ES_PORT=9300;
-    private static final String ES_HOST="10.20.76.50";
+    private static final String ES_HOST="10.20.76.44";
     private static final Integer NUMBER_OF_THREADS=5;
     private static final CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS);
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(ESBenchmarker.class);
@@ -61,7 +61,7 @@ public class ESBenchmarker {
                     long start = System.currentTimeMillis();
                     final String accountId = "ac" + UUID.randomUUID();
                     final XContentBuilder content = generateFakeData(accountId);
-                    IndexResponse response = client.prepareIndex("ele-bf", "metricsIndex-" + getIndex(accountId))
+                    IndexResponse response = client.prepareIndex("ele-metrics-index-" + getIndex(accountId), "metrics")
                             .setSource(content)
                             .execute()
                             .actionGet();
