@@ -70,6 +70,11 @@ public class ESBenchmarker {
                 } catch (IOException ex) {
                     failures++;
                 }
+
+                if (count % 1000 == 0 && count != 0) {
+                    log.info("Average index latency (ms):" + sum/(count - failures));
+                    log.info("Failures (count):" + failures);
+                }
             }
 
             log.info("Average index latency (ms):" + sum/(ITERATIONS - failures));
